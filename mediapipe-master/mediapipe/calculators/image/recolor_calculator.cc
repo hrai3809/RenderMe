@@ -29,6 +29,7 @@
 #include "mediapipe/gpu/gl_simple_shaders.h"
 #include "mediapipe/gpu/shader_util.h"
 #endif  // !MEDIAPIPE_DISABLE_GPU
+#include <third_party/opencv/include/opencv2/imgcodecs.hpp>
 
 namespace {
 enum { ATTRIB_VERTEX, ATTRIB_TEXTURE_POSITION, NUM_ATTRIBUTES };
@@ -51,6 +52,7 @@ inline cv::Vec3b Blend(const cv::Vec3b& color1, const cv::Vec3b& color2,
   float mix_value = weight * luminance;
 
   return color1 * (1.0 - mix_value) + color2 * mix_value;
+  
 }
 
 }  // namespace
@@ -259,33 +261,41 @@ absl::Status RecolorCalculator::RenderCpu(CalculatorContext* cc) {
   const int invert_mask = invert_mask_ ? 1 : 0;
   const int adjust_with_luminance = adjust_with_luminance_ ? 1 : 0;
 
-  // From GPU shader:
-  /*
-      vec4 weight = texture2D(mask, sample_coordinate);
-      vec4 color1 = texture2D(frame, sample_coordinate);
-      vec4 color2 = vec4(recolor, 1.0);
 
-      float luminance = dot(color1.rgb, vec3(0.299, 0.587, 0.114));
-      float mix_value = weight.MASK_COMPONENT * luminance;
 
-      fragColor = mix(color1, color2, mix_value);
-  */
+  cv::Mat background = cv::imread("c://PolyImage.png");
+
+  //cv::cvtColor(background, background, cv::COLOR_BGR2RGB);
+  //cv::cvtColor(background, background, cv::COLOR_RGB2RGBA);
+  cv::resize(background, background, input_mat.size());
+
+  int channelBg = background.channels();
+  int rowbg = background.rows;
+  int colbg = background.cols;
+
+
   if (mask_img.Format() == ImageFormat::VEC32F1) {
     for (int i = 0; i < output_mat.rows; ++i) {
       for (int j = 0; j < output_mat.cols; ++j) {
-        const float weight = mask_full.at<float>(i, j);
+
+          const float weight = mask_full.at<float>(i, j);
+
         output_mat.at<cv::Vec3b>(i, j) =
-            Blend(input_mat.at<cv::Vec3b>(i, j), recolor, weight, invert_mask,
+            Blend(input_mat.at<cv::Vec3b>(i, j), background.at<cv::Vec3b>(i, j), weight, invert_mask,
                   adjust_with_luminance);
+
       }
     }
   } else {
     for (int i = 0; i < output_mat.rows; ++i) {
       for (int j = 0; j < output_mat.cols; ++j) {
+
         const float weight = mask_full.at<uchar>(i, j) * (1.0 / 255.0);
+
         output_mat.at<cv::Vec3b>(i, j) =
             Blend(input_mat.at<cv::Vec3b>(i, j), recolor, weight, invert_mask,
                   adjust_with_luminance);
+
       }
     }
   }
