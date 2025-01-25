@@ -6,3 +6,5 @@ Uses both gpu and cpu resources for graphic rendering.
 To start using MediaPipe solutions with only a few lines code, see example code and demos in MediaPipe in Python and MediaPipe in JavaScript.
 To use MediaPipe in C++, Android and iOS, which allow further customization of the solutions as well as building your own, learn how to install MediaPipe and start building example applications in C++, Android and iOS.
 The source code is hosted in the MediaPipe Github repository, and you can run code search using Google Open Source Code Search.
+# Read the official guide for integration in your app
+MediaPipe offers cross-platform, customizable ML solutions for live and streaming media. https://ai.google.dev/edge/mediapipe/solutions/guide
