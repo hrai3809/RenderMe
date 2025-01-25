@@ -1,2 +1,2 @@
 # VirtualBackgroundApp
-Implementing virtual background in Visual Studio C++; using Mediapipe's Selfie Segmentation.
+Implementing intelligent virtual background in Visual Studio C++; using Mediapipe's Selfie Segmentation.
